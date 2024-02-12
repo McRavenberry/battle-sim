@@ -20,14 +20,14 @@ def attack():
         print(f"1. Weak attack - (AP={player.atk1ap}, DMG<={player.atk1})")
         print(f"2. Strong attack - (AP={player.atk2ap}, DMG<={player.atk2})")
         print(f"3. Block (AP=0, Success Chance = 80%)")
-        print(f"4. Wait (AP +1)")
+        print(f"4. Wait (AP +2)")
         action = input(">> ")
 
-        if action == "1":
+        if action == "1" and player.ap >= player.atk1ap:
             print(f"You did {player.atk1} damage.")
             enemy.hp -= player.atk1
             player.ap -= player.atk1ap
-        elif action == "2":
+        elif action == "2" and player.ap >= player.atk2ap:
             damage = randint(player.atk2/2, player.atk2)
             print(f"You did {damage} damage.")
             enemy.hp -= damage
@@ -40,20 +40,28 @@ def attack():
             else:
                 print("You failed to block the enemy's attack")
                 is_blocked = False
+        elif action == "4":
+            player.ap += 2
+        else:
+            print("You are too exhausted to perform that action.")
         return is_blocked
 
 def enemy_attack(is_blocked):
-    if not is_blocked and enemy.hp > 0:
+    if not is_blocked and enemy.hp > 0 and enemy.ap > 0:
         print(f"The enemy did {enemy.atk1} damage")
         player.hp -= enemy.atk1
+        enemy.ap -= enemy.atk1ap
+    elif enemy.ap == 0:
+        enemy.ap += 2
 
 def start():
     print("This is the battle system")
-    while enemy.hp > 0 or player.hp > 0:
+    while enemy.hp > 0:
         enemy_attack(attack()) # the player attack returns if enemy's attack is blocked
-    if enemy.hp <= 0:
-        print("The enemy died")
-        print(f"Player HP - {player.hp}")
-    elif player.hp <= 0:
-        print("The player died")
+        if player.hp <= 0:
+            print("You died.")
+            break
+        if enemy.hp <= 0:
+            print("Enemy died.")
+    
     input("Press Enter to Exit to Main Menu")
